@@ -35,7 +35,7 @@ async function fetchBusses (){
 
 async function fetchBusStopsByPostCode (){
     console.log("Enter post code: ");
-    const postCode=prompt(); // NW51TL // SW1A2AA
+    const postCode=prompt(); // NW51TL // SW1A2AA  //AL4 0JA - no stops
     const url_postCode = "http://api.postcodes.io/postcodes/"+postCode;
     
     const response_postCode = await fetch(url_postCode);
@@ -98,16 +98,21 @@ async function fetchBusStopsByPostCode (){
         const response_busStops = await fetch(url_busStops);
         const busStops = await response_busStops.json();
 
-        busStops.stopPoints.sort((stop1, stop2) => stop1.distance - stop2.distance );
+        if (busStops.stopPoints.length===0) {
+            console.log("Cannot find bus stops close to the post code "+postCode);
+        } else {
+            busStops.stopPoints.sort((stop1, stop2) => stop1.distance - stop2.distance );
 
-        for (const stop of busStops.stopPoints) { 
-            console.log(
-                "Bus Stop " +
-                stop.commonName +
-                " is " +
-                stop.distance.toFixed(2) +
-                "m away.");
+            for (const stop of busStops.stopPoints) { 
+                console.log(
+                    "Bus Stop " +
+                    stop.commonName +
+                    " is " +
+                    stop.distance.toFixed(2) +
+                    "m away.");
+            }
         }
+        
     }
     catch (err) {
         console.log("Cannot find post code "+postCode);
