@@ -7,8 +7,8 @@ const prompt = ps();
 const API_KEY="4c2ec6355dc441148aedf4a24a48bb8";
 
 
-async function fetchBusses (){
-    const busStopCode="490008660N";
+async function fetchBusses (busStopCode){
+    //const busStopCode="490008660N";
     const url = "https://api.tfl.gov.uk/StopPoint/"+busStopCode+"/Arrivals?api_key="+API_KEY;
 
     let response = await fetch(url);
@@ -31,7 +31,16 @@ async function fetchBusses (){
 //     .then(response => response.json())
 //     .then(body => console.log(body));
 
-//fetchBusses ();
+//fetchBusses ("490008660N");
+//fetchBusses("490006943N");
+
+import winston from 'winston';
+const logger = winston.createLogger({ 
+    transports: [
+        new winston.transports.Console(),
+        new winston.transports.File({ filename: 'combined.log' })
+    ]
+});
 
 async function fetchBusStopsByPostCode (){
     console.log("Enter post code: ");
@@ -93,7 +102,7 @@ async function fetchBusStopsByPostCode (){
         
         const joinedTypes = validStop.join(',');
         
-        const url_busStops = `https://api.tfl.gov.uk/StopPoint/?lat=${latitude}&lon=${longitude}&stopTypes=${joinedTypes}`;
+        const url_busStops = `https://api.tfl.gov.uk/StopPoint/?lat=${latitude}&lon=${longitude}&stopTypes=${joinedTypes}&radius=300`;
 
         const response_busStops = await fetch(url_busStops);
         const busStops = await response_busStops.json();
@@ -101,21 +110,31 @@ async function fetchBusStopsByPostCode (){
         if (busStops.stopPoints.length===0) {
             console.log("Cannot find bus stops close to the post code "+postCode);
         } else {
+            //console.log(busStops);
             busStops.stopPoints.sort((stop1, stop2) => stop1.distance - stop2.distance );
 
+            const Arr=[];
             for (const stop of busStops.stopPoints) { 
-                console.log(
-                    "Bus Stop " +
-                    stop.commonName +
-                    " is " +
-                    stop.distance.toFixed(2) +
-                    "m away.");
+                if (stop.children.length>0)
+                    Arr.push({name:stop.commonName, dist:stop.distance.toFixed(2),naptanId:stop.children[0].id});
             }
+            let numberToPrint;
+            if (Arr.length>1) numberToPrint=2;
+            else if (Arr.length>0) numberToPrint=1;
+            else numberToPrint=0;
+            
+             for (let i=0;i<numberToPrint;i++) {
+                 console.log('--------------------------');
+                 console.log("Bus Stop " + Arr[i].name + " is " + Arr[i].dist + "m away.");
+                 console.log('--------------------------');
+                 await fetchBusses(Arr[i].naptanId);
+             }
         }
         
     }
     catch (err) {
         console.log("Cannot find post code "+postCode);
+        logger.error("Cannot find post code "+postCode);
     }
 }
 
