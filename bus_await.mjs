@@ -4,8 +4,7 @@ import fetch from "node-fetch";
 import ps from 'prompt-sync'; // >> npm install prompt-sync
 const prompt = ps();
 
-const API_KEY="4c2ec6355dc441148aedf4a24a48bb8";
-
+const API_KEY="4c2ec6355dc441148aedf4a24a48bb8"; 
 
 async function fetchBusses (busStopCode){
     //const busStopCode="490008660N";
@@ -26,6 +25,27 @@ async function fetchBusses (busStopCode){
     }
 }
 
+async function fetchJourney (postCode, naptanId){
+    const url = "https://api.tfl.gov.uk/Journey/JourneyResults/"+postCode+"/to/"+naptanId+"?api_key="+API_KEY;
+    //https://api.tfl.gov.uk/Journey/JourneyResults/NW51TL/to/490006943N?api_key=4c2ec6355dc441148aedf4a24a48bb8
+
+    let response = await fetch(url);
+    let data = await response.json();
+    //console.log(data.journeys);
+    for (let j in data.journeys) {
+        //console.log (data.journeys[j].legs);
+        for (const leg of data.journeys[j].legs) {
+            //console.log(leg.instruction.steps);
+            //extraict [...]
+            for (let st in leg.instruction.steps) {
+                console.log(leg.instruction.steps[st].descriptionHeading+" "+
+                    leg.instruction.steps[st].description);
+            }
+        }
+    }
+}
+
+
 
 // fetch(url)
 //     .then(response => response.json())
@@ -44,13 +64,12 @@ const logger = winston.createLogger({
 
 async function fetchBusStopsByPostCode (){
     console.log("Enter post code: ");
-    const postCode=prompt(); // NW51TL // SW1A2AA  //AL4 0JA - no stops
+    const postCode=prompt(); // NW51TL // SW1A2AA  /se229hd /AL4 0JA - no stops
+    //const postCode="SW1A2AA"; 
     const url_postCode = "http://api.postcodes.io/postcodes/"+postCode;
     
     const response_postCode = await fetch(url_postCode);
-    // if (!response_postCode.ok) {
-    //     console.log('Wrong Post Code!!!')
-    // } else 
+
     try {
         const data_postCode = await response_postCode.json();
         const longitude = data_postCode.result.longitude;
@@ -124,10 +143,17 @@ async function fetchBusStopsByPostCode (){
             else numberToPrint=0;
             
              for (let i=0;i<numberToPrint;i++) {
-                 console.log('--------------------------');
+                 console.log('*******************************************************************');
                  console.log("Bus Stop " + Arr[i].name + " is " + Arr[i].dist + "m away.");
+                 //console.log(Arr[i].naptanId);
                  console.log('--------------------------');
+                 console.log('Bus Schedule:');
                  await fetchBusses(Arr[i].naptanId);
+                 console.log('--------------------------');
+                 console.log('How do get to the Bus Stop:');
+                 await fetchJourney (postCode, Arr[i].naptanId)
+                 
+
              }
         }
         
