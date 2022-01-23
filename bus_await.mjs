@@ -64,8 +64,7 @@ const logger = winston.createLogger({
 
 async function fetchBusStopsByPostCode (){
     console.log("Enter post code: ");
-    const postCode=prompt(); // NW51TL // SW1A2AA  /se229hd /AL4 0JA - no stops
-    //const postCode="SW1A2AA"; 
+    const postCode=prompt(); // NW51TL // SW1A2AA  
     const url_postCode = "http://api.postcodes.io/postcodes/"+postCode;
     
     const response_postCode = await fetch(url_postCode);
@@ -145,7 +144,6 @@ async function fetchBusStopsByPostCode (){
              for (let i=0;i<numberToPrint;i++) {
                  console.log('*******************************************************************');
                  console.log("Bus Stop " + Arr[i].name + " is " + Arr[i].dist + "m away.");
-                 //console.log(Arr[i].naptanId);
                  console.log('--------------------------');
                  console.log('Bus Schedule:');
                  await fetchBusses(Arr[i].naptanId);
