@@ -1,5 +1,5 @@
 import { builtinModules } from "module";
-import fetch from "node-fetch";
+import fetch from "node-fetch"; // >> npm install node-fetch
 
 import ps from 'prompt-sync'; // >> npm install prompt-sync
 const prompt = ps();
@@ -64,11 +64,9 @@ const logger = winston.createLogger({
 
 async function journeyBetween2PostCodes () {
     console.log("Enter the 1st post code: ");
-    const postCode1=prompt(); // NW51TL // SW1A2AA  /se229hd /
+    const postCode1=prompt(); // NW51TL // SW1A2AA  
     console.log("Enter the 2nd post code: ");
     const postCode2=prompt(); 
-    // const postCode1="SW1A2AA"; 
-    // const postCode2="se229hd"; 
     try {
         await fetchJourney (postCode1, postCode2)
     }
@@ -81,8 +79,7 @@ async function journeyBetween2PostCodes () {
 
 async function fetchBusStopsByPostCode (){
     console.log("Enter post code: ");
-    const postCode=prompt(); // NW51TL // SW1A2AA  /se229hd /AL4 0JA - no stops
-    //const postCode="SW1A2AA"; 
+    const postCode=prompt(); // NW51TL // SW1A2AA  
     const url_postCode = "http://api.postcodes.io/postcodes/"+postCode;
     
     const response_postCode = await fetch(url_postCode);
@@ -159,7 +156,6 @@ async function fetchBusStopsByPostCode (){
              for (let i=0;i<numberToPrint;i++) {
                  console.log('*******************************************************************');
                  console.log("Bus Stop " + Arr[i].name + " is " + Arr[i].dist + "m away.");
-                 //console.log(Arr[i].naptanId);
                  console.log('--------------------------');
                  console.log('Bus Schedule:');
                  await fetchBusses(Arr[i].naptanId);
@@ -181,8 +177,7 @@ async function fetchBusStopsByPostCode (){
 async function main() {
     console.log("1 - the 2 nearest stops + busses from them + how to get there ");
     console.log("2 - How to get from one Post Code to another ");
-    const choice=prompt(); // NW51TL // SW1A2AA  /se229hd /AL4 0JA - no stops
-    //const postCode="SW1A2AA"; 
+    const choice=prompt(); // NW51TL // SW1A2AA  
     switch(choice) {
         case "1": 
             await fetchBusStopsByPostCode ();
